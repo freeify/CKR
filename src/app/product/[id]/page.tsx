@@ -90,6 +90,68 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                     </div>
                 </div>
             </div>
+
+            {/* Reviews Section */}
+            <div className="mt-20 pt-10 border-t border-white/10">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-12">
+                    <div className="w-full md:w-1/3">
+                        <h2 className="text-2xl font-bold text-white mb-6">Customer Reviews</h2>
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                            <div className="text-center mb-6">
+                                <div className="text-5xl font-bold text-white mb-2">4.9</div>
+                                <div className="flex justify-center text-ckr-gold mb-1">
+                                    <Star className="h-5 w-5 fill-current" />
+                                    <Star className="h-5 w-5 fill-current" />
+                                    <Star className="h-5 w-5 fill-current" />
+                                    <Star className="h-5 w-5 fill-current" />
+                                    <Star className="h-5 w-5 fill-current" />
+                                </div>
+                                <p className="text-sm text-gray-400">Based on 24 reviews</p>
+                            </div>
+                            <div className="space-y-3">
+                                {[5, 4, 3, 2, 1].map((rating) => (
+                                    <div key={rating} className="flex items-center gap-3">
+                                        <span className="text-sm text-gray-400 w-3">{rating}</span>
+                                        <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                                            <div
+                                                className="h-full bg-ckr-gold"
+                                                style={{ width: rating === 5 ? "85%" : rating === 4 ? "10%" : "2%" }}
+                                            />
+                                        </div>
+                                        <span className="text-sm text-gray-400 w-8">{rating === 5 ? "85%" : rating === 4 ? "10%" : "2%"}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <Button className="w-full mt-6" variant="outline">Write a Review</Button>
+                        </div>
+                    </div>
+
+                    <div className="w-full md:w-2/3 space-y-8">
+                        {[
+                            { name: "Sipho M.", date: "Feb 10, 2024", comment: "Absolutely incredible quality. Was skeptical about buying resale but CKR proved me wrong. The packaging was royal indeed!", rating: 5 },
+                            { name: "Jessica K.", date: "Jan 15, 2024", comment: "Item arrived in 2 days. Condition was exactly as described. Highly recommend.", rating: 5 },
+                            { name: "David L.", date: "Jan 5, 2024", comment: "Great service, though the box had a small dent. The product itself was perfect.", rating: 4 }
+                        ].map((review, i) => (
+                            <div key={i} className="pb-8 border-b border-white/5 last:border-0">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h4 className="font-bold text-white">{review.name}</h4>
+                                        <div className="flex text-ckr-gold mt-1">
+                                            {[...Array(5)].map((_, star) => (
+                                                <Star key={star} className={`h-3 w-3 ${star < review.rating ? "fill-current" : "text-gray-600"}`} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <span className="text-sm text-gray-500">{review.date}</span>
+                                </div>
+                                <p className="text-gray-300 leading-relaxed text-sm md:text-base">
+                                    {review.comment}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
