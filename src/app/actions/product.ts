@@ -27,7 +27,7 @@ export async function uploadProduct(formData: FormData) {
 
             if (uploadError) {
                 console.error("Storage upload error:", uploadError);
-                return { success: false, error: "Failed to upload one or more images." };
+                return { success: false, error: `Storage Error: ${uploadError.message}` };
             }
 
             const { data: { publicUrl } } = supabase.storage
@@ -49,7 +49,7 @@ export async function uploadProduct(formData: FormData) {
 
         if (dbError) {
             console.error("Database insert error:", dbError);
-            return { success: false, error: "Failed to save product details." };
+            return { success: false, error: `Database Error: ${dbError.message}` };
         }
 
         revalidatePath("/products");

@@ -25,7 +25,7 @@ export async function uploadBlog(formData: FormData) {
 
         if (uploadError) {
             console.error("Storage upload error:", uploadError);
-            return { success: false, error: "Failed to upload image." };
+            return { success: false, error: `Storage Error: ${uploadError.message}` };
         }
 
         // 2. Get the public URL
@@ -45,7 +45,7 @@ export async function uploadBlog(formData: FormData) {
 
         if (dbError) {
             console.error("Database insert error:", dbError);
-            return { success: false, error: "Failed to save blog details." };
+            return { success: false, error: `Database Error: ${dbError.message}` };
         }
 
         revalidatePath("/blog");
