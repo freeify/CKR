@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DollarSign, ShieldCheck, Zap, HeartHandshake } from "lucide-react";
+import { ProductUploadForm } from "@/components/products/ProductUploadForm";
 
 export default function SellPage() {
     const benefits = [
@@ -79,35 +80,7 @@ export default function SellPage() {
                     </div>
 
                     <div className="p-8 md:p-12 md:w-1/2">
-                        <form className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">What are you selling?</label>
-                                <input className="w-full bg-white/10 border border-white/20 rounded-md p-3 focus:ring-2 focus:ring-ckr-gold focus:outline-none placeholder:text-gray-500" placeholder="e.g. iPhone 13 Pro 256GB" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Condition</label>
-                                    <select className="w-full bg-white/10 border border-white/20 rounded-md p-3 focus:ring-2 focus:ring-ckr-gold focus:outline-none appearance-none">
-                                        <option className="bg-ckr-black">Like New</option>
-                                        <option className="bg-ckr-black">Excellent</option>
-                                        <option className="bg-ckr-black">Good</option>
-                                        <option className="bg-ckr-black">Fair</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Expected Price (R)</label>
-                                    <input className="w-full bg-white/10 border border-white/20 rounded-md p-3 focus:ring-2 focus:ring-ckr-gold focus:outline-none" placeholder="0.00" />
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Your Contact Number</label>
-                                <input className="w-full bg-white/10 border border-white/20 rounded-md p-3 focus:ring-2 focus:ring-ckr-gold focus:outline-none" placeholder="+27..." />
-                            </div>
-                            <Button className="w-full h-12 text-lg font-bold">Submit for Quote</Button>
-                            <p className="text-center text-xs text-gray-500 italic">
-                                By submitting, you agree to our terms of resale and quality inspection.
-                            </p>
-                        </form>
+                        <ProductUploadForm />
                     </div>
                 </div>
             </section>

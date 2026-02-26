@@ -1,18 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { Star, Shield, Truck, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
-    // Mock data - in a real app this would fetch based on ID
-    const product = {
+    const { data: productData, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    const isMock = !!error || !productData;
+
+    const product = isMock ? {
         id,
         name: "Premium Product Name",
         price: "R 4,500",
         description: "This is a high-quality pre-owned item that has been thoroughly inspected. It comes with a 6-month warranty and is in excellent condition.",
         features: ["Mint Condition", "Verified Seller", "Original Packaging"],
-        img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=1000"
+        image_urls: ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=1000"]
+    } : {
+        id: productData.id,
+        name: productData.title,
+        price: `R ${productData.price.toLocaleString()}`,
+        description: productData.description || "No description provided.",
+        features: ["User Listed", "Verified Upload"],
+        image_urls: productData.image_urls?.length > 0 ? productData.image_urls : ["https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=1000"]
     };
 
     return (
@@ -22,13 +37,23 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </Link>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                {/* Product Image */}
-                <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden h-[400px] md:h-[500px]">
-                    <img
-                        src={product.img}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                    />
+                <div className="flex flex-col gap-4">
+                    <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden h-[400px] md:h-[500px]">
+                        <img
+                            src={product.image_urls[0]}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                        />
+                    </div>
+                    {product.image_urls.length > 1 && (
+                        <div className="flex gap-4 overflow-x-auto pb-2">
+                            {product.image_urls.map((url: string, i: number) => (
+                                <div key={i} className="h-24 w-24 flex-shrink-0 bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+                                    <img src={url} alt={`${product.name} thumbnail ${i + 1}`} className="w-full h-full object-cover" />
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Product Info */}

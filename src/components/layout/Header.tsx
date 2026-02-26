@@ -6,23 +6,43 @@ import { useRouter } from "next/navigation"
 import { Search, ShoppingCart, User, Menu, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { products } from "@/lib/mock-data"
+import { createClient } from "@/utils/supabase/client"
 
 export function Header() {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false)
     const [searchQuery, setSearchQuery] = React.useState("")
     const [suggestions, setSuggestions] = React.useState<typeof products>([])
     const [showSuggestions, setShowSuggestions] = React.useState(false)
+    const [user, setUser] = React.useState<any>(null)
     const router = useRouter()
     const suggestionsRef = React.useRef<HTMLDivElement>(null)
 
     React.useEffect(() => {
+        const supabase = createClient()
+
+        const fetchUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            setUser(user)
+        }
+        fetchUser()
+
+        // Subscribe to auth state changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            (event, session) => {
+                setUser(session?.user ?? null)
+            }
+        )
+
         const handleClickOutside = (event: MouseEvent) => {
             if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
                 setShowSuggestions(false)
             }
         }
         document.addEventListener("mousedown", handleClickOutside)
-        return () => document.removeEventListener("mousedown", handleClickOutside)
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside)
+            subscription.unsubscribe()
+        }
     }, [])
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,8 +94,8 @@ export function Header() {
                     <Link href="/categories" className="text-sm font-medium text-white hover:text-ckr-gold transition-colors">
                         Categories
                     </Link>
-                    <Link href="/deals" className="text-sm font-medium text-white hover:text-ckr-gold transition-colors">
-                        Deals
+                    <Link href="/products" className="text-sm font-medium text-white hover:text-ckr-gold transition-colors">
+                        Products
                     </Link>
                     <Link href="/sell" className="text-sm font-medium text-white hover:text-ckr-gold transition-colors">
                         Sell with Us
@@ -150,10 +170,23 @@ export function Header() {
                         </span>
                         <span className="sr-only">Cart</span>
                     </Link>
-                    <button className="hidden md:flex text-white hover:text-ckr-gold p-2">
-                        <User className="h-5 w-5" />
-                        <span className="sr-only">Account</span>
-                    </button>
+                    {user ? (
+                        <div className="hidden md:flex items-center gap-4">
+                            <span className="text-sm text-gray-400 hidden lg:block truncate max-w-[100px]">{user.email}</span>
+                            <form action="/login/actions/logout" method="POST">
+                                <button formAction={async () => {
+                                    const { logout } = await import('@/app/login/actions')
+                                    await logout()
+                                }} className="text-sm font-bold text-white hover:text-red-500 transition-colors">
+                                    Sign Out
+                                </button>
+                            </form>
+                        </div>
+                    ) : (
+                        <Link href="/login" className="hidden md:flex text-sm font-bold text-white hover:text-ckr-gold px-4 py-2 bg-white/10 rounded-full transition-colors">
+                            Log In
+                        </Link>
+                    )}
                     <button
                         className="md:hidden text-white p-2"
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -206,8 +239,8 @@ export function Header() {
                                 <Link href="/categories" className="text-sm font-medium text-white hover:text-ckr-gold py-2">
                                     Categories
                                 </Link>
-                                <Link href="/deals" className="text-sm font-medium text-white hover:text-ckr-gold py-2">
-                                    Deals
+                                <Link href="/products" className="text-sm font-medium text-white hover:text-ckr-gold py-2">
+                                    Products
                                 </Link>
                                 <Link href="/sell" className="text-sm font-medium text-white hover:text-ckr-gold py-2">
                                     Sell with Us
@@ -218,6 +251,22 @@ export function Header() {
                                 <Link href="/about" className="text-sm font-medium text-white hover:text-ckr-gold py-2">
                                     About
                                 </Link>
+                                <div className="border-t border-white/10 my-2 pt-2">
+                                    {user ? (
+                                        <form action="/login/actions/logout" method="POST">
+                                            <button formAction={async () => {
+                                                const { logout } = await import('@/app/login/actions')
+                                                await logout()
+                                            }} className="text-sm font-medium text-red-400 hover:text-red-300 py-2 text-left w-full">
+                                                Sign Out
+                                            </button>
+                                        </form>
+                                    ) : (
+                                        <Link href="/login" className="text-sm font-bold text-ckr-gold hover:text-white py-2 block">
+                                            Log In / Sign Up
+                                        </Link>
+                                    )}
+                                </div>
                             </nav>
                         </div>
                     </motion.div>
