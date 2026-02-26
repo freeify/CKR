@@ -7,6 +7,12 @@ export async function uploadBlog(formData: FormData) {
     try {
         const supabase = await createClient();
 
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user?.email !== 'emataranyika@gmail.com') {
+            return { success: false, error: "Only the administrator (emataranyika@gmail.com) is authorized to perform this action." };
+        }
+
         const title = formData.get("title") as string;
         const category = formData.get("category") as string;
         const content = formData.get("content") as string;
@@ -66,6 +72,12 @@ export async function uploadBlog(formData: FormData) {
 export async function updateBlog(id: string, formData: FormData) {
     try {
         const supabase = await createClient();
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user?.email !== 'emataranyika@gmail.com') {
+            return { success: false, error: "Only the administrator (emataranyika@gmail.com) is authorized to perform this action." };
+        }
 
         const title = formData.get("title") as string;
         const category = formData.get("category") as string;

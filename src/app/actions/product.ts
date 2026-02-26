@@ -11,6 +11,12 @@ export async function uploadProduct(formData: FormData) {
         const description = formData.get("description") as string;
         const images = formData.getAll("images") as File[];
 
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user?.email !== 'emataranyika@gmail.com') {
+            return { success: false, error: "Only the administrator (emataranyika@gmail.com) is authorized to perform this action." };
+        }
+
         if (!title || !price || images.length === 0) {
             return { success: false, error: "Title, Price, and Image are required." };
         }
@@ -72,8 +78,8 @@ export async function deleteProduct(id: string, imageUrls: string[]) {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-            return { success: false, error: "You must be logged in to delete." };
+        if (user?.email !== 'emataranyika@gmail.com') {
+            return { success: false, error: "Only the administrator (emataranyika@gmail.com) is authorized to perform this action." };
         }
         // 1. Extract the filenames from the URLs to delete from storage
         const fileNames = imageUrls.map(url => {
@@ -95,8 +101,7 @@ export async function deleteProduct(id: string, imageUrls: string[]) {
         const { error: dbError } = await supabase
             .from('products')
             .delete()
-            .eq('id', id)
-            .eq('user_id', user.id);
+            .eq('id', id);
 
         if (dbError) {
             console.error("Database deletion error:", dbError);

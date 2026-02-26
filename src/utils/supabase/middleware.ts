@@ -37,6 +37,20 @@ export async function updateSession(request: NextRequest) {
             data: { user },
         } = await supabase.auth.getUser()
 
+        const isAdmin = user?.email === 'emataranyika@gmail.com'
+
+        // Protect admin-only routes
+        const isAdminRoute = request.nextUrl.pathname.startsWith('/sell') ||
+            request.nextUrl.pathname.startsWith('/blog/create') ||
+            request.nextUrl.pathname.includes('/edit')
+
+        if (isAdminRoute && !isAdmin) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/login'
+            url.searchParams.set('redirectedFrom', request.nextUrl.pathname)
+            return NextResponse.redirect(url)
+        }
+
         // Redirect logged-in users away from /login
         if (user && request.nextUrl.pathname.startsWith('/login')) {
             const url = request.nextUrl.clone()
