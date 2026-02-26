@@ -2,14 +2,17 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 export async function uploadBlog(formData: FormData) {
     try {
         const supabase = await createClient();
 
         const { data: { user } } = await supabase.auth.getUser();
+        const cookieStore = await cookies();
+        const isAdminSession = cookieStore.get('ckr_admin_session')?.value === 'true';
 
-        if (user?.email !== 'emataranyika@gmail.com') {
+        if (user?.email !== 'emataranyika@gmail.com' && !isAdminSession) {
             return { success: false, error: "Only the administrator (emataranyika@gmail.com) is authorized to perform this action." };
         }
 
@@ -74,8 +77,10 @@ export async function updateBlog(id: string, formData: FormData) {
         const supabase = await createClient();
 
         const { data: { user } } = await supabase.auth.getUser();
+        const cookieStore = await cookies();
+        const isAdminSession = cookieStore.get('ckr_admin_session')?.value === 'true';
 
-        if (user?.email !== 'emataranyika@gmail.com') {
+        if (user?.email !== 'emataranyika@gmail.com' && !isAdminSession) {
             return { success: false, error: "Only the administrator (emataranyika@gmail.com) is authorized to perform this action." };
         }
 

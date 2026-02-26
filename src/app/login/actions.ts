@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
 export async function login(formData: FormData) {
     const supabase = await createClient();
@@ -11,6 +12,20 @@ export async function login(formData: FormData) {
         email: formData.get("email") as string,
         password: formData.get("password") as string,
     };
+
+    // HARDCODED ADMIN BYPASS
+    if (data.email === 'emataranyika@gmail.com' && data.password === 'WANframe24!') {
+        const cookieStore = await cookies();
+        cookieStore.set('ckr_admin_session', 'true', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: '/',
+        });
+        revalidatePath("/", "layout");
+        return redirect("/");
+    }
 
     const { error } = await supabase.auth.signInWithPassword(data);
 
@@ -58,6 +73,11 @@ export async function signup(formData: FormData) {
 
 export async function logout() {
     const supabase = await createClient();
+
+    // Clear admin bypass cookie if it exists
+    const cookieStore = await cookies();
+    cookieStore.delete('ckr_admin_session');
+
     const { error } = await supabase.auth.signOut();
 
     if (error) {

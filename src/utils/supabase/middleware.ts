@@ -37,7 +37,8 @@ export async function updateSession(request: NextRequest) {
             data: { user },
         } = await supabase.auth.getUser()
 
-        const isAdmin = user?.email === 'emataranyika@gmail.com'
+        const isAdminSession = request.cookies.get('ckr_admin_session')?.value === 'true'
+        const isAdmin = user?.email === 'emataranyika@gmail.com' || isAdminSession
 
         // Protect admin-only routes
         const isAdminRoute = request.nextUrl.pathname.startsWith('/sell') ||
@@ -52,7 +53,7 @@ export async function updateSession(request: NextRequest) {
         }
 
         // Redirect logged-in users away from /login
-        if (user && request.nextUrl.pathname.startsWith('/login')) {
+        if ((user || isAdminSession) && request.nextUrl.pathname.startsWith('/login')) {
             const url = request.nextUrl.clone()
             url.pathname = '/'
             return NextResponse.redirect(url)

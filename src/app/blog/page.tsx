@@ -1,21 +1,30 @@
 import Link from "next/link";
 import { getBlogs } from "@/app/actions/blog";
 import { PenSquare } from "lucide-react";
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
 export default async function BlogPage() {
     const blogs = await getBlogs();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const cookieStore = await cookies();
+    const isAdminSession = cookieStore.get('ckr_admin_session')?.value === 'true';
+    const isAdmin = user?.email === 'emataranyika@gmail.com' || isAdminSession;
 
     return (
         <div className="container mx-auto px-4 py-12">
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-4xl font-bold text-ckr-gold">Latest News & Tips</h1>
-                <Link
-                    href="/blog/create"
-                    className="flex items-center gap-2 bg-ckr-gold text-black px-4 py-2 rounded-lg font-bold hover:bg-white transition-colors"
-                >
-                    <PenSquare className="w-5 h-5" />
-                    Write Blog
-                </Link>
+                {isAdmin && (
+                    <Link
+                        href="/blog/create"
+                        className="flex items-center gap-2 bg-ckr-gold text-black px-4 py-2 rounded-lg font-bold hover:bg-white transition-colors"
+                    >
+                        <PenSquare className="w-5 h-5" />
+                        Write Blog
+                    </Link>
+                )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

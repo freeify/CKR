@@ -21,15 +21,28 @@ export function Header() {
         const supabase = createClient()
 
         const fetchUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser()
-            setUser(user)
+            const { data: { user: authUser } } = await supabase.auth.getUser()
+
+            // Check for admin bypass cookie
+            const isAdminSession = document.cookie.includes('ckr_admin_session=true')
+
+            if (isAdminSession) {
+                setUser({ email: 'emataranyika@gmail.com', id: 'admin-bypass' })
+            } else {
+                setUser(authUser)
+            }
         }
         fetchUser()
 
         // Subscribe to auth state changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             (event, session) => {
-                setUser(session?.user ?? null)
+                const isAdminSession = document.cookie.includes('ckr_admin_session=true')
+                if (isAdminSession) {
+                    setUser({ email: 'emataranyika@gmail.com', id: 'admin-bypass' })
+                } else {
+                    setUser(session?.user ?? null)
+                }
             }
         )
 

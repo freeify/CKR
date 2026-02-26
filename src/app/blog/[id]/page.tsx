@@ -2,11 +2,18 @@ import { ArrowLeft, Calendar, User, Tag, PenSquare } from "lucide-react";
 import Link from "next/link";
 import { getBlogById } from "@/app/actions/blog";
 import { notFound } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
 export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
     const post = await getBlogById(id);
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    const cookieStore = await cookies();
+    const isAdminSession = cookieStore.get('ckr_admin_session')?.value === 'true';
+    const isAdmin = user?.email === 'emataranyika@gmail.com' || isAdminSession;
 
     if (!post) {
         notFound();
@@ -23,13 +30,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                     <span className="text-ckr-gold font-bold text-sm uppercase tracking-wider">{post.category}</span>
                     <h1 className="text-3xl md:text-5xl font-bold text-white mt-2 mb-6">{post.title}</h1>
                 </div>
-                <Link
-                    href={`/blog/${post.id}/edit`}
-                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-bold transition-colors border border-white/20"
-                >
-                    <PenSquare className="w-4 h-4" />
-                    <span className="hidden sm:inline">Edit Blog</span>
-                </Link>
+                {isAdmin && (
+                    <Link
+                        href={`/blog/${post.id}/edit`}
+                        className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-bold transition-colors border border-white/20"
+                    >
+                        <PenSquare className="w-4 h-4" />
+                        <span className="hidden sm:inline">Edit Blog</span>
+                    </Link>
+                )}
             </div>
 
             <div className="mb-8 border-b border-white/10 pb-8">

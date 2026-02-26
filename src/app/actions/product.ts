@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 
 export async function uploadProduct(formData: FormData) {
     try {
@@ -12,8 +13,10 @@ export async function uploadProduct(formData: FormData) {
         const images = formData.getAll("images") as File[];
 
         const { data: { user } } = await supabase.auth.getUser();
+        const cookieStore = await cookies();
+        const isAdminSession = cookieStore.get('ckr_admin_session')?.value === 'true';
 
-        if (user?.email !== 'emataranyika@gmail.com') {
+        if (user?.email !== 'emataranyika@gmail.com' && !isAdminSession) {
             return { success: false, error: "Only the administrator (emataranyika@gmail.com) is authorized to perform this action." };
         }
 
@@ -77,8 +80,10 @@ export async function deleteProduct(id: string, imageUrls: string[]) {
     try {
         const supabase = await createClient();
         const { data: { user } } = await supabase.auth.getUser();
+        const cookieStore = await cookies();
+        const isAdminSession = cookieStore.get('ckr_admin_session')?.value === 'true';
 
-        if (user?.email !== 'emataranyika@gmail.com') {
+        if (user?.email !== 'emataranyika@gmail.com' && !isAdminSession) {
             return { success: false, error: "Only the administrator (emataranyika@gmail.com) is authorized to perform this action." };
         }
         // 1. Extract the filenames from the URLs to delete from storage
