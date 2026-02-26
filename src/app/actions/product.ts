@@ -15,6 +15,11 @@ export async function uploadProduct(formData: FormData) {
             return { success: false, error: "Title, Price, and Image are required." };
         }
 
+        // Diagnostic Check: If using placeholder, tell the user to set Vercel Env Vars
+        if (process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co' || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+            return { success: false, error: "Config Error: NEXT_PUBLIC_SUPABASE_URL is missing in Vercel settings." };
+        }
+
         const publicUrls: string[] = [];
 
         // 1. Upload all images to the 'images' bucket

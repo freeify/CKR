@@ -16,6 +16,11 @@ export async function uploadBlog(formData: FormData) {
             return { success: false, error: "Title, Category, Content, and Image are required." };
         }
 
+        // Diagnostic Check: If using placeholder, tell the user to set Vercel Env Vars
+        if (process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co' || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+            return { success: false, error: "Config Error: NEXT_PUBLIC_SUPABASE_URL is missing in Vercel settings." };
+        }
+
         // 1. Upload the image to the 'images' bucket
         const fileExt = image.name.split('.').pop();
         const fileName = `blog_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
