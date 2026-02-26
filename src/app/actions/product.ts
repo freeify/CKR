@@ -20,7 +20,7 @@ export async function uploadProduct(formData: FormData) {
         // 1. Upload all images to the 'images' bucket
         for (const image of images) {
             const fileExt = image.name.split('.').pop();
-            const fileName = `${Math.random()}.${fileExt}`;
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
             const { error: uploadError } = await supabase.storage
                 .from('images')
                 .upload(fileName, image);

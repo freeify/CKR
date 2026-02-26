@@ -18,7 +18,7 @@ export async function uploadBlog(formData: FormData) {
 
         // 1. Upload the image to the 'images' bucket
         const fileExt = image.name.split('.').pop();
-        const fileName = `blog_${Math.random()}.${fileExt}`;
+        const fileName = `blog_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
         const { error: uploadError } = await supabase.storage
             .from('images')
             .upload(fileName, image);
@@ -76,7 +76,7 @@ export async function updateBlog(id: string, formData: FormData) {
         // If a new image was uploaded, process it
         if (image && image.size > 0 && image.name !== 'undefined') {
             const fileExt = image.name.split('.').pop();
-            const fileName = `blog_${Math.random()}.${fileExt}`;
+            const fileName = `blog_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
             const { error: uploadError } = await supabase.storage
                 .from('images')
                 .upload(fileName, image);
