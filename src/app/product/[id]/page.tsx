@@ -1,10 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Star, Shield, Truck, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
+
+    // Initialize the server-side Supabase client properly
+    const supabase = await createClient();
 
     const { data: productData, error } = await supabase
         .from('products')
